@@ -1,0 +1,8 @@
+
+example for maximum number
+
+    cat numbers.txt | sort -nr | head -n 1
+
+example for minimum number
+
+    cat numbers.txt | sort -n | head -n 1
