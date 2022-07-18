@@ -1,0 +1,25 @@
+task3.1
+
+ps -e | tail -n +2 | wc -l
+
+task3.2
+
+mkdir "MMs C camp"
+
+find . -maxdepth 1 -type f -name "*.c" | xargs -I {} cp {} ./"MMs C camp"
+
+rm [0-9]*
+
+task3.3
+
+chmod 0754 ~/Desktop/testFile
+
+task3.4
+
+cat source1.c source2.c | wc -l > lineCount
+
+task3.5
+
+find . -type f -name "*.c" | wc -l
+
+find . -maxdepth 1 -type f -name "*.c" |xargs -I {} cat {} | wc -l
