@@ -51,10 +51,15 @@ void flipOddbits(uint64_t* mask)
 void mirrorBits(uint16_t* mask);
 void mirrorBits(uint16_t* mask)
 {
+	uint16_t copy=0;
       for(int i=0;i<16;i++)
 	  {
-		  *mask=*mask^(1<<i);
+		  if(!!(*mask&(1<<i)))
+		  {
+			  copy+=1<<(15-i);
+		  }
 	  }
+	  *mask=copy;
 }
 
 
