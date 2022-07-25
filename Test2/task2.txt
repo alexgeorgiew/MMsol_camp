@@ -1,0 +1,3 @@
+gcc comparator.c -o comparator.out
+
+gcc main.c -o main.out -D COUNT=10 -D MIN=10 -D MAX=15 comparator.out
