@@ -1,0 +1,9 @@
+1.   find /home | grep -E "\.h" | wc -l
+
+2.   find ~ -type f | xargs -I {} cat {} | grep -I "main()"
+
+3.1 cat phones.info | grep -E "^(0|\+359)8[789][0-9]{7}$"
+
+3.2 cat phones.info | grep -E -v "^(0|\+359)8[789][0-9]{7}$"
+
+3.3 cat phones.info | grep -E "^(0|\+359)87[0-9]{7}$" > phones.vivacom.data
