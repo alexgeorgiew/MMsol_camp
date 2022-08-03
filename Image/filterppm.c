@@ -26,15 +26,42 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        }
        
        char firstword[2];
-       size_t read=fscanf(f,"%c%c",firstword,firstword+1);                  //check every fscanf function
-       if(read!=2)return -1;
-       if( firstword[0]!='P'  || firstword[1]!='3' )return -1;     
+       size_t read;
+       if( (read=fscanf(f,"%c%c",firstword,firstword+1) == EOF) )
+       {
+       		fprintf(stderr,"Error when reading special word\n");
+		fclose(f);
+		return -1;
+       }
+       if(read!=2)
+       {
+	       fclose(f);
+	       return -1;
+       }
+       if( firstword[0]!='P'  || firstword[1]!='3' )
+       {
+	       fclose(f);
+	       return -1;
+       }     
        
        int sizeimage[2];
-       read=fscanf(f,"%d %d",sizeimage,sizeimage+1);
+       if( (read=fscanf(f,"%d %d",sizeimage,sizeimage+1)) ==EOF )
+       {
+       	        fprintf(stderr,"Error when reading size of image\n");
+		fclose(f);
+		return -1;
+       }
 
-       if(read!=2)return -1;
-       if( sizeimage[0]<=0  || sizeimage[1]<=0)return -1;
+       if(read!=2)
+       {
+	       fclose(f);
+	       return -1;
+       }
+       if( sizeimage[0]<=0  || sizeimage[1]<=0)
+       {
+	       fclose(f);
+	       return -1;
+       }
   	
        buf->coln=sizeimage[0];
        buf->rown=sizeimage[1];
@@ -42,20 +69,31 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        buf->data=(Pixel_Data*)malloc(sizeimage[0]*sizeimage[1]*sizeof(Pixel_Data));
 
        int specialword255;
-       fscanf(f,"%d",&specialword255);
+       if( fscanf(f,"%d",&specialword255) == EOF)
+       {
+	       fprintf(stderr,"Error when read special word 255\n");
+	       fclose(f);
+	       return -1;
+       }
        if(specialword255!=255)
        {
-	 free(buf->data);
-	 return -1; 
-	}
+	       fprintf(stderr,"Special word 255 is something else\n");
+	       fclose(f);
+	       return -1; 
+       }
 
        for(int i=0;i<sizeimage[0]*sizeimage[1];i++)   //here we should check for empty  lines 
        {
 	       int r,g,b;
-	       fscanf(f,"%d %d %d",&r,&g,&b);
+	       if(fscanf(f,"%d %d %d",&r,&g,&b) != 3)
+	       {
+		       fprintf(stderr,"Error when read info for a pixel\n");
+		       fclose(f);
+		       return -1;
+	       }
 	       if(r<0 || r>255 || g<0 || g>255 || b<0 || b>255)
 	       {
-		       free(buf->data);
+		       fclose(f);
 		       return -1;
 		}
 	       buf->data[i].red=r;
@@ -65,7 +103,7 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
 
         if(fclose(f) == EOF)
 	{
-		free(buf->data);
+		return -1;
 	}
        return 0;
 }
@@ -75,22 +113,41 @@ int write_ppm_color_bitmap(char* filename, PPM_Image_Buffer *buf)
 	FILE *f=fopen(filename,"w+");
 	if(f==NULL)
 	{
-		free(buf->data);
-		return -1;//free mem
+		return -1;
 	}
 
-	fprintf(f,"P3\n");                                      //we should check function fprintf for correct work
-	fprintf(f,"%d %d\n",buf->coln,buf->rown);
-	fprintf(f,"255\n");
+	if(fprintf(f,"P3\n") < 0 )
+	{
+		fprintf(stderr,"Error while writing saved word in the new image\n");
+		fclose(f);
+		return -1;
+	}
+	if(fprintf(f,"%d %d\n",buf->coln,buf->rown) < 0)
+	{
+		fprintf(stderr,"Error while writing dimensional information\n");
+		fclose(f);
+		return -1;
+	}
+	if(fprintf(f,"255\n") < 0 )
+	{
+		fprintf(stderr,"Error while writing special word\n");
+		fclose(f);
+		return -1;
+	}
         
 	for(int i=0;i< buf->coln * buf->rown ;i++)
 	{
-		fprintf(f,"%d %d %d\n",buf->data[i].red,buf->data[i].green,buf->data[i].blue);
+		if(fprintf(f,"%d %d %d\n",buf->data[i].red,buf->data[i].green,buf->data[i].blue) < 0 )
+		{
+			fprintf(stderr,"Error while writing information about pixel\n");
+			fclose(f);
+			return -1;
+		}
 
 	}
        if(fclose(f) == EOF)
        {
-	       free(buf->data);
+	       return -1;
        }
  	return 0;
 }
@@ -148,6 +205,7 @@ int main(int argc,char** argv)
 	    if(read_ppm_color_bitmap(argv[1],&image)==-1)
 	    {
 		    fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
+		    free(image.data);
 		    return -1;
 	    }
 
@@ -156,6 +214,7 @@ int main(int argc,char** argv)
             if(write_ppm_color_bitmap(argv[2],&image)==-1)
 	    {
 		fprintf(stderr,"write_ppm_color_bitmap not correct finish\n");
+		free(image.data);
 		return -1;
 	    }
   
@@ -172,12 +231,13 @@ int main(int argc,char** argv)
 		   else if(argv[4][i]=='b')b++;
 		   else return -1;
 	   }
-	   if(r>1 || g>1 || b>1)return -1; //check if all are zeros
+	   if(r>1 || g>1 || b>1)return -1;
 
             if(read_ppm_color_bitmap(argv[1],&image)==-1)
 	    {
 
 		    fprintf(stderr,"read_ppm_color_bitmap exited with status -1\n");
+		    free(image.data);
 		    return -1;
 	    }
 
@@ -186,6 +246,7 @@ int main(int argc,char** argv)
 	    if(write_ppm_color_bitmap(argv[2],&image)==-1)
 	    {
 		    fprintf(stderr,"write_ppm_color_bitmap exited with status -1\n");
+		    free(image.data);
 		    return -1;
 	    }
 	}
