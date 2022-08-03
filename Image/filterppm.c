@@ -22,12 +22,14 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        FILE* f=fopen(filename,"r");
        if(f==NULL)
        {
+	       fprintf(stderr,"Can not open file to read\n");
 	       return -1;
        }
        
        char firstword[2];
        size_t read;
-       if( (read=fscanf(f,"%c%c",firstword,firstword+1) == EOF) )
+       read=fscanf(f,"%c%c",firstword,firstword+1);
+       if( read == EOF )
        {
        		fprintf(stderr,"Error when reading special word\n");
 		fclose(f);
@@ -35,17 +37,20 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        }
        if(read!=2)
        {
+	       fprintf(stderr,"First special word is not contain of 2 chars\n");
 	       fclose(f);
 	       return -1;
        }
        if( firstword[0]!='P'  || firstword[1]!='3' )
        {
+	       fprintf(stderr,"First special word has differnt char than expected ones\n");
 	       fclose(f);
 	       return -1;
        }     
        
        int sizeimage[2];
-       if( (read=fscanf(f,"%d %d",sizeimage,sizeimage+1)) ==EOF )
+       read=fscanf(f,"%d %d",sizeimage,sizeimage+1);
+       if( read == EOF )
        {
        	        fprintf(stderr,"Error when reading size of image\n");
 		fclose(f);
@@ -54,11 +59,13 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
 
        if(read!=2)
        {
+	       fprintf(stderr,"Dimesions are not 2 numbers\n");
 	       fclose(f);
 	       return -1;
        }
        if( sizeimage[0]<=0  || sizeimage[1]<=0)
        {
+	       fprintf(stderr,"Negative size of dimension\n");
 	       fclose(f);
 	       return -1;
        }
@@ -71,12 +78,14 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        int specialword255;
        if( fscanf(f,"%d",&specialword255) == EOF)
        {
+	       free(buf->data);
 	       fprintf(stderr,"Error when read special word 255\n");
 	       fclose(f);
 	       return -1;
        }
        if(specialword255!=255)
        {
+	       free(buf->data);
 	       fprintf(stderr,"Special word 255 is something else\n");
 	       fclose(f);
 	       return -1; 
@@ -87,12 +96,14 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
 	       int r,g,b;
 	       if(fscanf(f,"%d %d %d",&r,&g,&b) != 3)
 	       {
+		       free(buf->data);
 		       fprintf(stderr,"Error when read info for a pixel\n");
 		       fclose(f);
 		       return -1;
 	       }
 	       if(r<0 || r>255 || g<0 || g>255 || b<0 || b>255)
 	       {
+		       free(buf->data);
 		       fclose(f);
 		       return -1;
 		}
@@ -103,6 +114,7 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
 
         if(fclose(f) == EOF)
 	{
+		free(buf->data);
 		return -1;
 	}
        return 0;
@@ -205,7 +217,6 @@ int main(int argc,char** argv)
 	    if(read_ppm_color_bitmap(argv[1],&image)==-1)
 	    {
 		    fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
-		    free(image.data);
 		    return -1;
 	    }
 
@@ -237,7 +248,6 @@ int main(int argc,char** argv)
 	    {
 
 		    fprintf(stderr,"read_ppm_color_bitmap exited with status -1\n");
-		    free(image.data);
 		    return -1;
 	    }
 
