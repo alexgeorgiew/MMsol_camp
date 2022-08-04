@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-
-struct Node{
-	struct Node* next;
-	int data;
-};
+#include "linkedlist.h"
 
 
 
@@ -48,22 +43,4 @@ void print(struct Node* node)
 	}
 }
 
-int main()
-{
-       	struct Node* info=malloc(sizeof(struct Node)*1);
-	info->next=NULL;
-	info->data=3;
-        push_front(&info,2);
-	print(info);
-
-        printf("pop back\n");
-
-	pop_back(&info);
-	pop_back(&info);
-
-	push_front(&info,1);
-	print(info);
-
-
-	return 0;
-}
+void reverse(struct Node** node);
