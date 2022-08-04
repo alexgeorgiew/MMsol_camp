@@ -22,8 +22,9 @@ void pop_back(struct Node** node)
 	if( *node == NULL)return;
 	if((*node)->next == NULL)
 	{
-		free(*node);  //free the only node in the struct
-		*node=NULL;
+		struct Node* todel=*node;
+		*node=NULL;  //free the only node in the struct
+		free(todel);
 		return;
 	}
 
@@ -34,9 +35,8 @@ void pop_back(struct Node** node)
 		second_last=last;
 		last=last->next;
 	}
-
-	free(second_last->next);//free memory of last node
-	second_last->next=NULL;
+        second_last->next=NULL;
+	free(last);//free memory of last node
 }
 
 void print(struct Node* node)
