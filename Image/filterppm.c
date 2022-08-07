@@ -73,7 +73,7 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
        buf->coln=sizeimage[0];
        buf->rown=sizeimage[1];
 
-       buf->data=(Pixel_Data*)malloc(sizeimage[0]*sizeimage[1]*sizeof(Pixel_Data));
+       buf->data=(Pixel_Data*)malloc(sizeimage[0]*sizeimage[1]*sizeof(Pixel_Data)); //check if null is returned
 
        int specialword255;
        if( fscanf(f,"%d",&specialword255) == EOF)
@@ -91,7 +91,7 @@ int read_ppm_color_bitmap(char* filename, PPM_Image_Buffer* buf)
 	       return -1; 
        }
 
-       for(int i=0;i<sizeimage[0]*sizeimage[1];i++)   //here we should check for empty  lines 
+       for(int i=0;i<sizeimage[0]*sizeimage[1];i++)  
        {
 	       int r,g,b;
 	       if(fscanf(f,"%d %d %d",&r,&g,&b) != 3)
