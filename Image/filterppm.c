@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct Pixel_Data{
     unsigned char red,green,blue;
@@ -202,6 +203,42 @@ void printfBuffer(PPM_Image_Buffer* input)
       }
 }
 
+void convert_textppm_to_binaryppm(PPM_Image_Buffer* image,char* filename)
+{
+	FILE* f=fopen(filename,"wb");
+	if(f==NULL)
+	{
+		fprintf(stderr,"Can not open file to write it in format ppm6");
+	}
+	
+	fputc('P',f);
+	fputc('6',f);
+	fputc('\n',f);
+	fprintf(f,"%d",image->coln);
+	fputc(' ',f);
+	fprintf(f,"%d",image->rown);
+	fputc('\n',f);
+	fputc('2',f);
+	fputc('5',f);
+	fputc('5',f);
+	fputc('\n',f);
+	
+
+	for(int i=0;i<image->rown*image->coln;i++)
+	{
+ 		unsigned char arr[3]={image->data[i].red,image->data[i].green,image->data[i].blue};
+		fwrite(arr,3,sizeof(unsigned char),f);
+	}
+	
+	fclose(f);
+	
+}
+
+void convert_binaryppm_to_textppm(PPM_Image_Buffer* image,char* filename)
+{
+
+}
+
 int main(int argc,char** argv)
 {
 	PPM_Image_Buffer image;
@@ -212,22 +249,38 @@ int main(int argc,char** argv)
 	}
         if(argc==4)   // last argument must be -g
 	{
-            if( argv[3][0]!='-' || argv[3][1]!='g' || argv[3][2]!='\0')return -1;
+              if( strcmp(argv[3],"-g")==0 )
+	      {
+	    	 if(read_ppm_color_bitmap(argv[1],&image)==-1)
+	    	 {
+		   	 fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
+			    return -1;
+	    	 }
 
-	    if(read_ppm_color_bitmap(argv[1],&image)==-1)
-	    {
-		    fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
-		    return -1;
-	    }
+	    	 convert_to_grayscale(&image);
 
-	    convert_to_grayscale(&image);
+            	 if(write_ppm_color_bitmap(argv[2],&image)==-1)
+	    	 {
+			fprintf(stderr,"write_ppm_color_bitmap not correct finish\n");
+			free(image.data);
+			return -1;
+	    	 }
+	      }
+	      else if(strcmp(argv[3],"-t")==0)
+	      {
+                   
+	      }
+	      else if(strcmp(argv[3],"-b")==0)
+	      {
 
-            if(write_ppm_color_bitmap(argv[2],&image)==-1)
-	    {
-		fprintf(stderr,"write_ppm_color_bitmap not correct finish\n");
-		free(image.data);
-		return -1;
-	    }
+		    read_ppm_color_bitmap(argv[1],&image); //chech if correct
+		   convert_textppm_to_binaryppm(&image,argv[2]);
+	      }
+	      else
+	      {
+		      fprintf(stderr,"Program can not work with this arguments\n");
+		      return -1;
+	      }
   
 	}
 	else  
