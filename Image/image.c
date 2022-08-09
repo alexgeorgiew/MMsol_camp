@@ -191,7 +191,7 @@ void printfBuffer(PPM_Image_Buffer* input)
       }
 }
 
-void convert_textppm_to_binaryppm(PPM_Image_Buffer* image,char* filename)
+void write_to_binaryppm(PPM_Image_Buffer* image,char* filename)
 {
 	FILE* f=fopen(filename,"wb");
 	if(f==NULL)

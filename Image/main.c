@@ -35,7 +35,7 @@ int main(int argc,char** argv)
 	      {
 
 		    read_ppm_color_bitmap(argv[1],&image); //chech if correct
-		   convert_textppm_to_binaryppm(&image,argv[2]);
+		    write_to_binaryppm(&image,argv[2]);
 	      }
 	      else
 	      {
