@@ -191,38 +191,83 @@ void printfBuffer(PPM_Image_Buffer* input)
       }
 }
 
-void write_to_binaryppm(PPM_Image_Buffer* image,char* filename)
+int write_to_binaryppm(PPM_Image_Buffer* image,char* filename)
 {
 	FILE* f=fopen(filename,"wb");
-	if(f==NULL)
-	{
-		fprintf(stderr,"Can not open file to write it in format ppm6");
-	}
-	
-	fputc('P',f);
-	fputc('6',f);
-	fputc('\n',f);
-	fprintf(f,"%d",image->coln);
-	fputc(' ',f);
-	fprintf(f,"%d",image->rown);
-	fputc('\n',f);
-	fputc('2',f);
-	fputc('5',f);
-	fputc('5',f);
-	fputc('\n',f);
-	
+        if(f==NULL)
+        {
+                fprintf(stderr,"Can not open file to write it in format ppm6");
+        }
 
-	for(int i=0;i<image->rown*image->coln;i++)
-	{
- 		unsigned char arr[3]={image->data[i].red,image->data[i].green,image->data[i].blue};
-		fwrite(arr,3,sizeof(unsigned char),f);
-	}
-	
-	fclose(f);
-	
+        fputc('P',f);
+        fputc('6',f);
+        fputc('\n',f);
+        fprintf(f,"%d",image->coln);
+        fputc(' ',f);
+        fprintf(f,"%d",image->rown);
+        fputc('\n',f);
+        fputc('2',f);
+        fputc('5',f);
+        fputc('5',f);
+        fputc('\n',f);
+
+
+        for(int i=0;i<image->rown*image->coln;i++)
+        {
+                unsigned char arr[3]={image->data[i].red,image->data[i].green,image->data[i].blue};
+                fwrite(arr,3,sizeof(unsigned char),f);
+        }
+
+        fclose(f);
+
 }
 
-void convert_binaryppm_to_textppm(PPM_Image_Buffer* image,char* filename)
+int read_from_binaryppm(PPM_Image_Buffer* image,char* filename)
 {
+       FILE* f=fopen(filename,"rb");
+       if(f==NULL)
+       {
+               return -1;
+       }
+
+       char line1[4];
+       fread(line1,3,sizeof(char),f);
+       line1[3]='\0';
+
+       if(strcmp(line1,"P6\n")!=0)
+       {
+               fprintf(stderr,"Special word format is wrong\n");
+               return -1;
+       }
+
+       int size[2];
+       fscanf(f,"%d %d\n",size,size+1);
+       if(size[0]<=0 || size[1]<=0)
+       {
+               printf("Zero or negative dimension\n");
+               return -1;
+       }
+       char c[5];
+       fread(c,4,sizeof(char),f);
+       c[4]='\0';
+       if(strcmp(c,"255\n")!=0)
+       {
+               printf("Maximal value for color is not right\n");
+               return -1;
+       }
+        image->coln=size[0];
+        image->rown=size[1];
+       image->data=(struct Pixel_Data*)malloc(sizeof(struct Pixel_Data)*size[0]*size[1]);
+
+        for(int i=0;i<size[0]*size[1];i++)
+        {
+                unsigned char arr[3];
+                fread(arr,3,sizeof(unsigned char),f);
+                image->data[i].red=arr[0];
+                image->data[i].green=arr[1];
+                image->data[i].blue=arr[2];
+        }
+       fclose(f);
+       return 0;
 
 }

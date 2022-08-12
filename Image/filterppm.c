@@ -234,7 +234,7 @@ int write_to_binaryppm(PPM_Image_Buffer* image,char* filename)
 	
 }
 
-int read_from_binary(PPM_Image_Buffer* image,char* filename)
+int read_from_binaryppm(PPM_Image_Buffer* image,char* filename)
 {
        FILE* f=fopen(filename,"rb");
        if(f==NULL)
@@ -313,7 +313,7 @@ int main(int argc,char** argv)
 	      }
 	      else if(strcmp(argv[3],"-t")==0)
 	      {
-       			if(read_from_binary(&image,argv[1])==-1)
+       			if(read_from_binaryppm(&image,argv[1])==-1)
 			{
 				printf("error with read binary\n");
 				return -1;
@@ -324,7 +324,11 @@ int main(int argc,char** argv)
 	      else if(strcmp(argv[3],"-b")==0)
 	      {
 
-		    read_ppm_color_bitmap(argv[1],&image); //chech if correct
+		    if(read_ppm_color_bitmap(argv[1],&image) == -1)
+		    {
+			    fprintf(stderr,"read_ppm_color_bitmap not correct working\n");
+			    return -1;
+		    }
 		    write_to_binaryppm(&image,argv[2]);
 	      }
 	      else

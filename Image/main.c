@@ -8,40 +8,51 @@ int main(int argc,char** argv)
 		fprintf(stderr,"Wrong number of arguments\n");
 		return -1;
 	}
-        if(argc==4)   // last argument must be -g
+        if(argc==4) 
 	{
               if( strcmp(argv[3],"-g")==0 )
-	      {
-	    	 if(read_ppm_color_bitmap(argv[1],&image)==-1)
-	    	 {
-		   	 fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
-			    return -1;
-	    	 }
+              {
+                 if(read_ppm_color_bitmap(argv[1],&image)==-1)
+                 {
+                         fprintf(stderr,"read_ppm_color_bitmap not correct execution\n");
+                            return -1;
+                 }
 
-	    	 convert_to_grayscale(&image);
+                 convert_to_grayscale(&image);
 
-            	 if(write_ppm_color_bitmap(argv[2],&image)==-1)
-	    	 {
-			fprintf(stderr,"write_ppm_color_bitmap not correct finish\n");
-			free(image.data);
-			return -1;
-	    	 }
-	      }
-	      else if(strcmp(argv[3],"-t")==0)
-	      {
-                   
-	      }
-	      else if(strcmp(argv[3],"-b")==0)
-	      {
+                 if(write_ppm_color_bitmap(argv[2],&image)==-1)
+                 {
+                        fprintf(stderr,"write_ppm_color_bitmap not correct finish\n");
+                        free(image.data);
+                        return -1;
+                 }
+              }
+              else if(strcmp(argv[3],"-t")==0)
+              {
+                        if(read_from_binaryppm(&image,argv[1])==-1)
+                        {
+                                printf("error with read binary\n");
+                                return -1;
+                        }
+                        write_ppm_color_bitmap(argv[2],&image);
 
-		    read_ppm_color_bitmap(argv[1],&image); //chech if correct
-		    write_to_binaryppm(&image,argv[2]);
-	      }
-	      else
-	      {
-		      fprintf(stderr,"Program can not work with this arguments\n");
-		      return -1;
-	      }
+              }
+              else if(strcmp(argv[3],"-b")==0)
+              {
+
+                    if(read_ppm_color_bitmap(argv[1],&image) == -1)
+                    {
+                            fprintf(stderr,"read_ppm_color_bitmap not correct working\n");
+                            return -1;
+                    }
+                    write_to_binaryppm(&image,argv[2]);
+              }
+              else
+              {
+                      fprintf(stderr,"Program can not work with this arguments\n");
+                      return -1;
+              }
+
   
 	}
 	else  

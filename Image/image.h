@@ -24,6 +24,6 @@ void convert_to_grayscale(PPM_Image_Buffer* buf);
 
 void printfBuffer(PPM_Image_Buffer* input);
 
-void write_to_binaryppm(PPM_Image_Buffer* image,char* filename);
-void convert_binaryppm_to_textppm(PPM_Image_Buffer* image,char* filename);
+int write_to_binaryppm(PPM_Image_Buffer* image,char* filename);
+int read_from_binaryppm(PPM_Image_Buffer* image,char* filename);
 
