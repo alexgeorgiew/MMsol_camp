@@ -10,11 +10,15 @@ int buyers=5;
 int sellers=6;
 pthread_t *b,*s;
 enum description {Water,Cola,Bread,Banana};
+sem_t full;
+sem_t empty;
+sem_t mutex;
 
 struct Product{
 	int barcode;
 	enum description desc;
 	double price;
+	struct Product* next;
 };
 
 struct Storage{
@@ -29,6 +33,10 @@ void* buy(void* args)
 {
     while(1)
     {
+	    sleep(1);
+	    sem_wait(&empty);
+            
+	    sem_post(&empty);
 
     }
 }
@@ -37,7 +45,11 @@ void* sell(void* args)
 {
     while(1)
     {
-
+	    sem_wait(&full);
+            sem_wait(&muext);
+	    sem_post(&mutex);
+	    sem_post(&empty);
+	sleep(1);
     }
 }
 
@@ -46,9 +58,18 @@ void handle(int sig)
 
 }
 
-void add(struct Storage* input,struct Product* product)
+void add(struct Storage* store,struct Product* product)
 {
-
+      if(store->first=NULL)
+      {
+	      store->first=product;
+	      store->count_elements++;
+	      return;
+      }
+      struct Product* temp=store->first;
+      store->first=product;
+      store->first->next=temp;
+      store->count_elements++;
 }
 
 void remove(struct Storage* input)
@@ -58,7 +79,7 @@ void remove(struct Storage* input)
 
 void free_Storage(struct Storage* input)
 {
-
+     
 }
 
 int main(int argc,char **argv)
@@ -145,7 +166,8 @@ int main(int argc,char **argv)
 	     for(int i=0;i<numbers_of_elements;i++)
 	     {
                 struct Product cur=malloc(sizeof(struct Product));
-               	read(f,&cur,sizeof(struct Product));       
+               	read(f,&cur,sizeof(struct Product));
+	        add(&warehouse,cur);
 	     }
 
 
@@ -157,19 +179,64 @@ int main(int argc,char **argv)
      b=(pthread_t*)malloc(sizeof(pthread_t)*buyers);
      s=(pthread_t*)malloc(sizeof(pthread_t)*sellers);
 
+     if(cf)sem_init(&full,0,warehouse.count_elements);
+     else sem_init(&full,0,warehouse.count_elements);
+
+     sem_init(&empty,0,maxel);
+     sem_init(&mutex,0,1);
+
      for(int i=0;i<buyers;i++)
      {
 	     if(pthread_create(b+i,NULL,buy,NULL))
 	     {
-                 
+		 fprintf(stderr,"Error with creating thread\n");
+                 free(b);
+		 free(s);
+		 free_Storage(&warehouse);
+		 return -1;
 	     }
      } 
      for(int i=0;i<sellers;i++)
      {
 	     if(prhtrea_create(s+i,NULL,sell,NULL))
 	     {
-
+                 fprintf(stderr,"Error with creting thread\n");
+		 free(b);
+		 free_Storage(&warehouse);
+		 free(s);
+		 return -1;
 	     }
      }
+
+     for(int i=0;i<buyers;i++)
+     {
+	     if(pthread_join(b[i],NULL))
+	     {
+		     fprintf(stderr,"Error with joining thread buyers\n");
+		     free(b);
+		     free(s);
+		     free_Storage(&warehouse);
+		     return -1;
+	     }
+     }
+     for(int i=0;i<sellers;i++)
+     {
+	     if(pthread_join(s[i],NULL))
+	     {
+		     fprintf(stderr,"Error with joining thread sellers\n");
+		     free(b);
+		     free(s);
+		     free_Storage(&warehouse);
+		     return -1;
+	     }
+     }
+
+
+     free(b);
+     free(s);
+     free_Storage(&warehouse);
+     sem_destroy(&full);
+     sem_destroy(&empty);
+     sem_detory(&mutex);
      return 0;
 }

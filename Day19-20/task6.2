@@ -1,0 +1,30 @@
+DIR=../include
+CC=gcc
+CFLAGS=-l$(IDIR)
+
+ODIR=obj
+LDIR=../lib
+
+LIBS=-lm
+
+_DEPS=hellomake.h
+DEPS=$(patsubst %,$(IDIR)/%,$(_OBJ))                   DEPS ще съдържа         (стойността на IDIR)/hellomake.h
+
+_OBJ=hellomake.o hellocfunc.o
+OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))                   OBJ ще съдържа        obj/hellomake.o  и  obj/hellofunc.o
+
+$(ODIR)/%.o:%.c $(DEPS)
+       $(CC) -o $@ $< $(CFLAGS)                         за всички файлове които мачват $(ODIR)/%.o 
+                                                      се компилират  чрез gcc като изходния файл е подадения на make а файла който се компилира
+                                                     е с име като подадения но завършващ на .c и се аргументи на  gcc $(CFLAGS)
+
+hellomake: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)        компилират се всички файлове от $(OBJ) като се подават аргументи на gcc $(CFLAGS) и $(LIBS) 
+                                                ,a изходния файл ще се казва hellomake
+
+.PHONY: clean                                    да може да се изпълни винаги дори да има файл с име clean
+
+clean:
+     rm -f $(ODIR)/*.o  *~  core $(INCDIR)/*~       изтриват се файлове от директории $(ODIR) които завършват на .о
+                                                    също се трие всички файлове завършващи на ~ ,core се изтрива 
+                                                    и всички файлове в директория $(INCDIR) които завършват на ~
