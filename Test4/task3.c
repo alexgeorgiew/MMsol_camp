@@ -2,6 +2,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 //#define THREAD_COUNT 5
 
 int n,m;
@@ -108,6 +111,15 @@ int main(int argc,char **argv)
 	
 
 	FILE *f=fopen(name,"w");
+
+	int d=open(name,O_RDONLY);
+	if(d!=-1)
+	{
+		fprintf(stdout,"file already exist\n");
+		freeall();
+		free(th);
+		return -1;
+	}
 	if(f==NULL)
 	{
 		fprintf(stderr,"CAn not open file\n");
