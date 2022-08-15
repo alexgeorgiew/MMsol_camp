@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <pthread.h>
-#define THREAD_COUNT 5
+//#define THREAD_COUNT 5
 
 int n,m;
 double *results;
@@ -54,6 +54,11 @@ int main(int argc,char **argv)
 
 	n=atoi(argv[1]);
 	m=atoi(argv[2]);
+	if(n<1 || m<1)
+	{
+		fprintf(stderr,"N and M must be positive integers\n");
+		return -1;
+	}
 	arr=(double**)malloc(sizeof(double*)*n);
 
 	for(int i=0;i<n;i++)

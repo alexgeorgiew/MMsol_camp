@@ -48,30 +48,46 @@ int main(int argc,char **argv)
 			int f=open(argv[i+1],O_RDONLY);
 			if(f==-1)
 			{
-				fprintf(stdout,"file%d - Can not open file\n",i);
+				fprintf(stdout,"file%d ",i+1);
+				perror("- ");
 				return -1;
 			}
-                        
-			int result=0;
-			int num;
+                        int size=lseek(f,0,SEEK_END);
+		        
+			if(size%4!=0)
+			{
+				fprintf(stdout,"file%d - format of file is not correct\n",i+1);
+				close(f);
+				return -1;
+			}
+			lseek(f,0,SEEK_SET);
+
+			int result=0,num;
 			while(read(f,&num,sizeof(num)))
 			{
 			   result=sum(num);
 			}
 
-                        fprintf(stdout,"file%d - %d\n",i,result);
+                        fprintf(stdout,"file%d - %d\n",i+1,result);
 			write(p[1],&result,sizeof(result));
+
 			close(p[1]);
+			close(f);
+
 			return 0;
 		    }
 		    else
 		    {
 			close(p[1]);
 			int cur;
+			wait(&cur);
 
-			read(p[0],&cur,sizeof(cur));
-                        total+=cur;
-		        wait(NULL);
+			if(WIFEXITED(cur))
+			{
+			    cur=0;
+				read(p[0],&cur,sizeof(cur));
+                        	total+=cur;
+			}
 			close(p[0]);
 		    }
 	    }
