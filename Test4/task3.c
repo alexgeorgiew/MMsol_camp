@@ -27,7 +27,7 @@ double vector(double* nums)
 	{
 		result+=nums[i]*nums[i];
 	}
-	return result;
+	return sqrt(result);
 }
 
 void* handler(void* arg)
